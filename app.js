@@ -5,9 +5,17 @@ const app = express();
 const {
     getAllProducts,
     getProductById,
-    getProductByName
+    getProductsByName,
+    getProductsByCategory,
+    createProduct,
+    updateProduct, 
+    deleteProduct,
+    getCustomerById,
+    updateCustomerContactInfo,
+    getOrdersByCustomer,
+    getProductStats,
+    getReviewStats
 } = require('./database.js');
-const exp = require('constants');
 //#endregion
 
 //#region middlewares
@@ -38,14 +46,26 @@ app.get('/products/:id', (req, res) => {
 });
 
 app.get(`/products/search/:name`, (req, res) => {
-    res.send(getProductByName(req.params.name));
+    res.send(getProductsByName(req.params.name));
+});
+
+app.get(`/products/category/:categoryId`, (req, res) => {
+    res.send(getProductsByCategory(req.params.categoryId));
 });
 //#endregion
 
 //#region POST methods
+app.post(`/products`, (req, res) => {
+    const {manufacturer_id, name, description, price, stock_quantity} = req.body;
+    res.status(201).json(createProduct(manufacturer_id, name, description, price, stock_quantity));
+});
 //#endregion
 
 //#region PUT methods
+app.put(`/products/:id`, (req, res) => {
+    const {manufacturer_id, name, description, price, stock_quantity} = req.body;
+    res.status(201).json(updateProduct(req.params.id, manufacturer_id, name, description, price, stock_quantity));
+});
 //#endregion
 
 //#region DELETE methods
