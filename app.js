@@ -30,6 +30,10 @@ app.get('/', (req, res) => {
 app.get('/products', (req, res) => {
     res.json(getProducts());
 });
+
+app.get('/products/:id', (req, res) => {
+
+});
 //#endregion
 
 //#region POST methods
