@@ -3,7 +3,9 @@ const app = express();
 
 //#region importing functions from database.js
 const {
-    getProducts
+    getAllProducts,
+    getProductById,
+    getProductByName
 } = require('./database.js');
 const exp = require('constants');
 //#endregion
@@ -28,11 +30,15 @@ app.get('/', (req, res) => {
 });
 
 app.get('/products', (req, res) => {
-    res.json(getProducts());
+    res.json(getAllProducts());
 });
 
 app.get('/products/:id', (req, res) => {
+    res.send(getProductById(req.params.id));
+});
 
+app.get(`/products/search/:name`, (req, res) => {
+    res.send(getProductByName(req.params.name));
 });
 //#endregion
 

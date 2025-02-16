@@ -1,9 +1,8 @@
 const Database = require("better-sqlite3");
 const db = new Database("webbutiken.db", { verbose: console.log });
 
-//#region product functions
-function getProducts() {
-    const stmt = db.prepare(`SELECT 
+const allProductsQuery = `SELECT 
+    products.product_id,
     products.name, 
     products.description, 
     products.price, 
@@ -12,20 +11,38 @@ function getProducts() {
     categories.name AS category
     FROM products
     JOIN manufacturers ON products.manufacturer_id = manufacturers.manufacturer_id
-    JOIN products_categories ON products.product_id = products_categories.product_id
-    JOIN categories ON products_categories.category_id = categories.category_id`);
-    return stmt.all();
+    LEFT JOIN products_categories ON products.product_id = products_categories.product_id
+    LEFT JOIN categories ON products_categories.category_id = categories.category_id`;
+
+//#region product functions
+function getAllProducts() {
+  const stmt = db.prepare(allProductsQuery);
+  return stmt.all();
+}
+
+function getProductById(id) {
+  const stmt = db.prepare(`${allProductsQuery}
+    WHERE products.product_id = ?`);
+  return stmt.get(id);
+}
+
+function getProductByName(name) {
+  const stmt = db.prepare(`${allProductsQuery}
+    WHERE products.name LIKE ?`);
+  return stmt.all(`%${name}%`);
 }
 //#endregion
 
 //#region customer functions
 //#endregion
 
-//#region analysis functions 
+//#region analysis functions
 //#endregion
 
 //#region exporting functions to app.js
 module.exports = {
-    getProducts
+  getAllProducts,
+  getProductById,
+  getProductByName
 };
 //#endregion
