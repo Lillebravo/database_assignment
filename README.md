@@ -1,3 +1,6 @@
-# database_assignment
+# database_assignment TechGear REST API
 
-File requires better-sqlite3 and express
+File requirments: 
+* better-sqlite3
+* express
+* Database file webbutiken.db
