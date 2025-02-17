@@ -14,20 +14,44 @@ const selectAllProducts = `SELECT
     LEFT JOIN products_categories ON products.product_id = products_categories.product_id
     LEFT JOIN categories ON products_categories.category_id = categories.category_id`;
 
-// Trying to add cascade delete constraint but didn´t work
+//#region Cascade Delete and update for reviews and categories
+// ### For reviews and products ###
+
+// Creating new table
 /* db.prepare(`CREATE TABLE IF NOT EXISTS reviews_new (
     review_id INTEGER PRIMARY KEY,
     product_id INTEGER,
-    review_text TEXT,
+    customer_id INTEGER,
     rating INTEGER,
-    FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE)`);
+    comment TEXT,
+    FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE)`).run();
 
-db.prepare(`INSERT INTO reviews_new (review_id, product_id, review_text, rating)
-SELECT review_id, product_id, review_text, rating FROM reviews`);
+// Copying all data from old table
+db.prepare(`INSERT INTO reviews_new (review_id, product_id, customer_id, rating, comment)
+SELECT review_id, product_id, customer_id, rating, comment FROM reviews`).run();
 
-db.prepare(`DROP TABLE reviews`);
+// Droping old table and renaming new one to match the old one
+db.prepare(`DROP TABLE reviews`).run();
+db.prepare(`ALTER TABLE reviews_new RENAME TO reviews`).run(); */
 
-db.prepare(`ALTER TABLE reviews_new RENAME TO reviews`); */
+
+// ### For Categories and products ###
+
+/* db.prepare(`
+  CREATE TABLE IF NOT EXISTS products_categories_new (
+  id INTEGER PRIMARY KEY,
+  product_id INTEGER,
+  category_id INTEGER,
+  FOREIGN KEY (product_id) REFERENCES products (product_id) ON UPDATE CASCADE,
+  FOREIGN KEY (category_id) REFERENCES categories (category_id) ON UPDATE CASCADE
+  )`).run();
+
+db.prepare(`INSERT INTO products_categories_new (id, product_id, category_id)
+    SELECT id, product_id, category_id FROM products_categories`).run();
+
+db.prepare(`DROP TABLE products_categories`).run();
+db.prepare(`ALTER TABLE products_categories_new RENAME TO products_categories`).run(); */
+//#endregion
 
 //#region product functions
 function getAllProducts() {
