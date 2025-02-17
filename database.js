@@ -104,8 +104,6 @@ function deleteProduct(id) {
 
 //#region customer functions
 function getCustomerById(id) {
-  // GET /customers/:id
-  // inkludera även orderhistorik via join med orders-tabellen
   const query = `SELECT 
     customers.customer_id AS Customer_Id, 
     customers.name AS Name, 
@@ -154,7 +152,6 @@ function getOrdersByCustomer(id) {
 
 //#region analysis functions
 function getProductStats() {
-  // GET /products/categories/stats
   const query = `SELECT 
       categories.name AS Category,
       COUNT(products.product_id) AS Products,
@@ -170,9 +167,16 @@ function getProductStats() {
 }
 
 function getReviewStats() {
-  // GET /reviews/stats
-  // visa genomsnittligt betyg per produkt
-  // använd group by för att sammanställa data
+  const query = `SELECT 
+  products.name AS Product, 
+  AVG(reviews.rating) AS Average_Score
+  FROM products
+  LEFT JOIN reviews ON reviews.product_id = products.product_id
+  GROUP BY products.product_id
+  `;
+
+  const stmt = db.prepare(query);
+  return stmt.all();
 }
 //#endregion
 

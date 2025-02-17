@@ -61,8 +61,12 @@ app.get("/customers/:id/orders", (req, res) => {
   res.send(getOrdersByCustomer(req.params.id));
 });
 
-app.get("/products/categories/stats", (req, res) => {
+app.get("/products/stats/categories", (req, res) => {
     res.send(getProductStats());
+});
+
+app.get("/products/stats/reviews", (req, res) => {
+    res.send(getReviewStats());
 });
 //#endregion
 
