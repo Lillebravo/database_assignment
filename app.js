@@ -1,6 +1,13 @@
 const express = require("express");
 const app = express();
 
+// initializing app
+app.listen(8000, () => {
+  console.log("Server is running");
+});
+app.use(logger); // all requests user logger middleware function
+app.use(express.json());
+
 //#region importing functions from database.js and middlewares.js
 const {
   getAllProducts,
@@ -18,18 +25,11 @@ const {
 } = require("./database.js");
 
 const {
-    logger, 
-    validateProductInput,
-    validateCustomerInput
+  logger,
+  validateProductInput,
+  validateCustomerInput,
 } = require("./middlewares.js");
 //#endregion
-
-// initializing app
-app.listen(8000, () => {
-  console.log("Server is running");
-});
-app.use(logger); // all requests user logger middleware function
-app.use(express.json());
 
 //#region GET methods
 app.get("/", (req, res) => {
@@ -61,11 +61,11 @@ app.get("/customers/:id/orders", (req, res) => {
 });
 
 app.get("/products/stats/categories", (req, res) => {
-    res.send(getProductStats());
+  res.send(getProductStats());
 });
 
 app.get("/products/stats/reviews", (req, res) => {
-    res.send(getReviewStats());
+  res.send(getReviewStats());
 });
 //#endregion
 
