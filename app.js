@@ -56,6 +56,10 @@ app.get(`/products/category/:categoryId`, (req, res) => {
 app.get("/customers/:id", (req, res) => {
   res.send(getCustomerById(req.params.id));
 });
+
+app.get("/customers/:id/orders", (req, res) => {
+  res.send(getOrdersByCustomer(req.params.id));
+});
 //#endregion
 
 //#region POST methods

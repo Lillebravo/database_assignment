@@ -107,22 +107,17 @@ function getCustomerById(id) {
   // GET /customers/:id
   // inkludera även orderhistorik via join med orders-tabellen
   const query = `SELECT 
-      customers.customer_id AS Customer_Id, 
-      customers.name AS Name, 
-      customers.email AS Email, 
-      customers.phone AS Phone_Nr, 
-      customers.address AS Address, 
-      customers.password AS Password,
-      orders.order_id AS Order_Nr, 
-      orders.order_date AS Order_Date,
-      products.name AS Product,
-      orders_products.quantity AS Quantity,
-      orders_products.unit_price AS Unit_Price
-    FROM customers
-    LEFT JOIN orders ON orders.customer_id = customers.customer_id
-    LEFT JOIN orders_products ON orders_products.order_id = orders.order_id
-    LEFT JOIN products ON products.product_id = orders_products.product_id
-    WHERE customers.customer_id = ?`;
+    customers.customer_id AS Customer_Id, 
+    customers.name AS Name, 
+    customers.email AS Email, 
+    customers.phone AS Phone_Nr, 
+    customers.address AS Address, 
+    customers.password AS Password,
+    JSON_GROUP_ARRAY(JSON_OBJECT('Order_Nr', orders.order_id, 'Order_Date', orders.order_date)) AS Orders
+  FROM customers
+  LEFT JOIN orders ON orders.customer_id = customers.customer_id
+  WHERE customers.customer_id = ?
+  GROUP BY customers.customer_id`;
 
   const stmt = db.prepare(query);
   return stmt.get(id);
@@ -139,8 +134,21 @@ function updateCustomerContactInfo(id, email, phone, address) {
   }
 }
 
-function getOrdersByCustomer() {
-  // GET /customers/:id/orders
+function getOrdersByCustomer(id) {
+  const query = `SELECT
+      orders.order_id AS Order_Nr, 
+      orders.order_date AS Order_Date,
+      products.name AS Product,
+      orders_products.quantity AS Quantity,
+      orders_products.unit_price AS Unit_Price
+    FROM customers
+    LEFT JOIN orders ON orders.customer_id = customers.customer_id
+    LEFT JOIN orders_products ON orders_products.order_id = orders.order_id
+    LEFT JOIN products ON products.product_id = orders_products.product_id
+    WHERE customers.customer_id = ?`;
+
+    const stmt = db.prepare(query);
+    return stmt.all(id);
 }
 //#endregion
 
