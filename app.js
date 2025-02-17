@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 
-//#region importing functions from database.js
+//#region importing functions from database.js and middlewares.js
 const {
   getAllProducts,
   getProductById,
@@ -16,20 +16,19 @@ const {
   getProductStats,
   getReviewStats,
 } = require("./database.js");
-//#endregion
 
-//#region middlewares
-const logger = (req, res, next) => {
-  console.log(`${req.method} ${req.url}`);
-  next();
-};
+const {
+    logger, 
+    validateProductInput,
+    validateCustomerInput
+} = require("./middlewares.js");
 //#endregion
 
 // initializing app
 app.listen(8000, () => {
   console.log("Server is running");
 });
-app.use(logger);
+app.use(logger); // all requests user logger middleware function
 app.use(express.json());
 
 //#region GET methods
@@ -71,7 +70,7 @@ app.get("/products/stats/reviews", (req, res) => {
 //#endregion
 
 //#region POST methods
-app.post(`/products`, (req, res) => {
+app.post(`/products`, validateProductInput, (req, res) => {
   const { manufacturer_id, name, description, price, stock_quantity } =
     req.body;
   res
@@ -83,7 +82,7 @@ app.post(`/products`, (req, res) => {
 //#endregion
 
 //#region PUT methods
-app.put(`/products/:id`, (req, res) => {
+app.put(`/products/:id`, validateProductInput, (req, res) => {
   const { manufacturer_id, name, description, price, stock_quantity } =
     req.body;
   res
@@ -100,7 +99,7 @@ app.put(`/products/:id`, (req, res) => {
     );
 });
 
-app.put(`/customers/:id`, (req, res) => {
+app.put(`/customers/:id`, validateCustomerInput, (req, res) => {
   const { email, phone, address } = req.body;
   res
     .status(201)
