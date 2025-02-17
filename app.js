@@ -60,6 +60,10 @@ app.get("/customers/:id", (req, res) => {
 app.get("/customers/:id/orders", (req, res) => {
   res.send(getOrdersByCustomer(req.params.id));
 });
+
+app.get("/products/categories/stats", (req, res) => {
+    res.send(getProductStats());
+});
 //#endregion
 
 //#region POST methods

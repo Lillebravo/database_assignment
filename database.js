@@ -147,17 +147,26 @@ function getOrdersByCustomer(id) {
     LEFT JOIN products ON products.product_id = orders_products.product_id
     WHERE customers.customer_id = ?`;
 
-    const stmt = db.prepare(query);
-    return stmt.all(id);
+  const stmt = db.prepare(query);
+  return stmt.all(id);
 }
 //#endregion
 
 //#region analysis functions
 function getProductStats() {
-  // GET /products/stats
-  // visa statistik grupperad per kategori
-  // Antal produkter per kategori
-  // Genomsnittligt pris per kategori
+  // GET /products/categories/stats
+  const query = `SELECT 
+      categories.name AS Category,
+      COUNT(products.product_id) AS Products,
+      AVG(products.price) AS Average_Price
+    FROM categories
+    LEFT JOIN products_categories ON products_categories.category_id = categories.category_id
+    LEFT JOIN products ON products.product_id = products_categories.product_id
+    GROUP BY categories.category_id
+  `;
+
+  const stmt = db.prepare(query);
+  return stmt.all();
 }
 
 function getReviewStats() {
