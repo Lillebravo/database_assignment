@@ -48,66 +48,114 @@ function getProductsByName(name) {
 }
 
 function getProductsByCategory(categoryId) {
-    const stmt = db.prepare(`${selectAllProducts}
+  const stmt = db.prepare(`${selectAllProducts}
         WHERE categories.category_Id = ?`);
-        return stmt.all(categoryId);
+  return stmt.all(categoryId);
 }
 
-function createProduct(manufacturer_id, name, description, price, stock_quantity) {
-    try {
-        const stmt = db.prepare("INSERT INTO products (manufacturer_id, name, description, price, stock_quantity) VALUES (?,?,?,?,?)");
-        return stmt.run(manufacturer_id, name, description, price, stock_quantity);
-      } catch (err) {
-        console.error("failed to add product", err);
-      }
+function createProduct(
+  manufacturer_id,
+  name,
+  description,
+  price,
+  stock_quantity
+) {
+  try {
+    const stmt = db.prepare(
+      "INSERT INTO products (manufacturer_id, name, description, price, stock_quantity) VALUES (?,?,?,?,?)"
+    );
+    return stmt.run(manufacturer_id, name, description, price, stock_quantity);
+  } catch (err) {
+    console.error("failed to add product", err);
+  }
 }
 
-function updateProduct(id, manufacturer_id, name, description, price, stock_quantity) {
-    try {
-        const stmt = db.prepare(
-          "UPDATE products SET manufacturer_id = ?, name = ?, description = ?, price = ?, stock_quantity = ? WHERE product_id = ?"
-        );
-        return stmt.run(manufacturer_id, name, description, price, stock_quantity, id);
-      } catch (err) {
-        console.error("failed to update product: ", err);
-      }
+function updateProduct(
+  id,
+  manufacturer_id,
+  name,
+  description,
+  price,
+  stock_quantity
+) {
+  try {
+    const stmt = db.prepare(
+      "UPDATE products SET manufacturer_id = ?, name = ?, description = ?, price = ?, stock_quantity = ? WHERE product_id = ?"
+    );
+    return stmt.run(
+      manufacturer_id,
+      name,
+      description,
+      price,
+      stock_quantity,
+      id
+    );
+  } catch (err) {
+    console.error("failed to update product: ", err);
+  }
 }
 
-function deleteProduct() {
-    // DELETE /products/:id
-    // ska även ta bort alla recensioner, cascade delete
+function deleteProduct(id) {
+  // ska även ta bort alla recensioner, cascade delete?
+  const stmt = db.prepare("DELETE FROM products WHERE product_id = ?");
+  return stmt.run(id);
 }
 //#endregion
 
 //#region customer functions
-function getCustomerById() {
-    // GET /customers/:id 
-    // visa kundinfo
-    // inkludera även orderhistorik via join med orders-tabellen
+function getCustomerById(id) {
+  // GET /customers/:id
+  // inkludera även orderhistorik via join med orders-tabellen
+  const query = `SELECT 
+      customers.customer_id AS Customer_Id, 
+      customers.name AS Name, 
+      customers.email AS Email, 
+      customers.phone AS Phone_Nr, 
+      customers.address AS Address, 
+      customers.password AS Password,
+      orders.order_id AS Order_Nr, 
+      orders.order_date AS Order_Date,
+      products.name AS Product,
+      orders_products.quantity AS Quantity,
+      orders_products.unit_price AS Unit_Price
+    FROM customers
+    LEFT JOIN orders ON orders.customer_id = customers.customer_id
+    LEFT JOIN orders_products ON orders_products.order_id = orders.order_id
+    LEFT JOIN products ON products.product_id = orders_products.product_id
+    WHERE customers.customer_id = ?`;
+
+  const stmt = db.prepare(query);
+  return stmt.get(id);
 }
 
-function updateCustomerContactInfo() {
-    // PUT /customers/:id
-    // email, telefon, address
+function updateCustomerContactInfo(id, email, phone, address) {
+  const query = `UPDATE customers SET email = ?, phone = ?, address = ? WHERE customer_id = ?`;
+
+  try {
+    const stmt = db.prepare(query);
+    return stmt.run(email, phone, address, id);
+  } catch (err) {
+    console.error("Failed to update customer", err);
+  }
 }
 
 function getOrdersByCustomer() {
-    // GET /customers/:id/orders
+  // GET /customers/:id/orders
 }
 //#endregion
 
 //#region analysis functions
 function getProductStats() {
-    // GET /products/stats
-    // visa statistik grupperad per kategori
-    // Antal produkter per kategori
-    // Genomsnittligt pris per kategori
+  // GET /products/stats
+  // visa statistik grupperad per kategori
+  // Antal produkter per kategori
+  // Genomsnittligt pris per kategori
 }
 
 function getReviewStats() {
-    // GET /reviews/stats
-    // visa genomsnittligt betyg per produkt
-    // använd group by för att sammanställa data
+  // GET /reviews/stats
+  // visa genomsnittligt betyg per produkt
+  // använd group by för att sammanställa data
 }
 //#endregion
 
@@ -118,12 +166,12 @@ module.exports = {
   getProductsByName,
   getProductsByCategory,
   createProduct,
-  updateProduct, 
+  updateProduct,
   deleteProduct,
   getCustomerById,
   updateCustomerContactInfo,
   getOrdersByCustomer,
   getProductStats,
-  getReviewStats
+  getReviewStats,
 };
 //#endregion
