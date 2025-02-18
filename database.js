@@ -15,28 +15,28 @@ const selectAllProducts = `SELECT
     LEFT JOIN categories ON products_categories.category_id = categories.category_id`;
 
 //#region Cascade Delete and update for reviews and categories
-function cascadeDeleteReviewsCategories() {
-  // Creating new table
-  db.prepare(
-    `CREATE TABLE IF NOT EXISTS reviews_new (
-    review_id INTEGER PRIMARY KEY,
-    product_id INTEGER,
-    customer_id INTEGER,
-    rating INTEGER,
-    comment TEXT,
-    FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE)`
-  ).run();
+  function cascadeDeleteReviewsCategories() {
+    // Creating new table
+    db.prepare(
+      `CREATE TABLE IF NOT EXISTS reviews_new (
+      review_id INTEGER PRIMARY KEY,
+      product_id INTEGER,
+      customer_id INTEGER,
+      rating INTEGER,
+      comment TEXT,
+      FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE)`
+    ).run();
 
-  // Copying all data from old table
-  db.prepare(
-    `INSERT INTO reviews_new (review_id, product_id, customer_id, rating, comment)
-SELECT review_id, product_id, customer_id, rating, comment FROM reviews`
-  ).run();
+    // Copying all data from old table
+    db.prepare(
+      `INSERT INTO reviews_new (review_id, product_id, customer_id, rating, comment)
+  SELECT review_id, product_id, customer_id, rating, comment FROM reviews`
+    ).run();
 
-  // Droping old table and renaming new one to match the old one
-  db.prepare(`DROP TABLE reviews`).run();
-  db.prepare(`ALTER TABLE reviews_new RENAME TO reviews`).run();
-}
+    // Droping old table and renaming new one to match the old one
+    db.prepare(`DROP TABLE reviews`).run();
+    db.prepare(`ALTER TABLE reviews_new RENAME TO reviews`).run();
+  }
 
 function cascadeUpdateProductsCategories() {
   db.prepare(
