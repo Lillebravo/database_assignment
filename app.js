@@ -1,35 +1,34 @@
+//#region importing functions from database.js and middlewares.js
+const {
+    getAllProducts,
+    getProductById,
+    getProductsByName,
+    getProductsByCategory,
+    createProduct,
+    updateProduct,
+    deleteProduct,
+    getCustomerById,
+    updateCustomerContactInfo,
+    getOrdersByCustomer,
+    getProductStats,
+    getReviewStats,
+  } = require("./database.js");
+  
+  const {
+    logger,
+    validateProductInput,
+    validateCustomerInput,
+  } = require("./middlewares.js");
+  //#endregion
+
 const express = require("express");
 const app = express();
 
-// initializing app
 app.listen(8000, () => {
   console.log("Server is running");
 });
 app.use(logger); // all requests user logger middleware function
 app.use(express.json());
-
-//#region importing functions from database.js and middlewares.js
-const {
-  getAllProducts,
-  getProductById,
-  getProductsByName,
-  getProductsByCategory,
-  createProduct,
-  updateProduct,
-  deleteProduct,
-  getCustomerById,
-  updateCustomerContactInfo,
-  getOrdersByCustomer,
-  getProductStats,
-  getReviewStats,
-} = require("./database.js");
-
-const {
-  logger,
-  validateProductInput,
-  validateCustomerInput,
-} = require("./middlewares.js");
-//#endregion
 
 //#region GET methods
 app.get("/", (req, res) => {
