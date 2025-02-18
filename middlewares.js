@@ -2,7 +2,7 @@ const logger = (req, res, next) => {
   // Keep track if we've logged already
   let logged = false;
 
-  // Store original send 
+  // Store original send
   const originalSend = res.send;
   const originalJson = res.json;
 
@@ -46,7 +46,7 @@ const validateProductInput = (req, res, next) => {
   }
 
   // Validate price
-  if (!price || price <= 0) {
+  if (!price || notValidNr(price)) {
     errors.push("Price has to be higher than 0");
   }
 
@@ -96,8 +96,16 @@ const validateCustomerInput = (req, res, next) => {
   next();
 };
 
+function notValidNr(number) {
+  if (isNaN(number) || number < 0) {
+    return true;
+  }
+  return false;
+}
+
 module.exports = {
   logger,
   validateProductInput,
   validateCustomerInput,
+  notValidNr,
 };

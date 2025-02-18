@@ -1,25 +1,26 @@
 //#region importing functions from database.js and middlewares.js
 const {
-    getAllProducts,
-    getProductById,
-    getProductsByName,
-    getProductsByCategory,
-    createProduct,
-    updateProduct,
-    deleteProduct,
-    getCustomerById,
-    updateCustomerContactInfo,
-    getOrdersByCustomer,
-    getProductStats,
-    getReviewStats,
-  } = require("./database.js");
-  
-  const {
-    logger,
-    validateProductInput,
-    validateCustomerInput,
-  } = require("./middlewares.js");
-  //#endregion
+  getAllProducts,
+  getProductById,
+  getProductsByName,
+  getProductsByCategory,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+  getCustomerById,
+  updateCustomerContactInfo,
+  getOrdersByCustomer,
+  getProductStats,
+  getReviewStats,
+} = require("./database.js");
+
+const {
+  logger,
+  validateProductInput,
+  validateCustomerInput,
+  notValidNr
+} = require("./middlewares.js");
+//#endregion
 
 const express = require("express");
 const app = express();
@@ -36,7 +37,25 @@ app.get("/", (req, res) => {
 });
 
 app.get("/products", (req, res) => {
-  res.json(getAllProducts());
+  // to test filtering: /products?minPrice=100&maxPrice=1000
+
+  // getting parameters
+  const minPrice = req.query.minPrice
+    ? parseFloat(req.query.minPrice)
+    : undefined;
+  const maxPrice = req.query.maxPrice
+    ? parseFloat(req.query.maxPrice)
+    : undefined;
+
+  // validation
+  if (minPrice !== undefined && notValidNr(minPrice)) {
+    return res.status(400).json({ error: "min price must be a valid number" });
+  }
+  if (maxPrice !== undefined && notValidNr(maxPrice)) {
+    return res.status(400).json({ error: "max price must be a valid number" });
+  }
+
+  res.json(getAllProducts(minPrice, maxPrice));
 });
 
 app.get("/products/:id", (req, res) => {

@@ -15,28 +15,28 @@ const selectAllProducts = `SELECT
     LEFT JOIN categories ON products_categories.category_id = categories.category_id`;
 
 //#region Cascade Delete and update for reviews and categories
-  function cascadeDeleteReviewsCategories() {
-    // Creating new table
-    db.prepare(
-      `CREATE TABLE IF NOT EXISTS reviews_new (
+function cascadeDeleteReviewsCategories() {
+  // Creating new table
+  db.prepare(
+    `CREATE TABLE IF NOT EXISTS reviews_new (
       review_id INTEGER PRIMARY KEY,
       product_id INTEGER,
       customer_id INTEGER,
       rating INTEGER,
       comment TEXT,
       FOREIGN KEY (product_id) REFERENCES products(product_id) ON DELETE CASCADE)`
-    ).run();
+  ).run();
 
-    // Copying all data from old table
-    db.prepare(
-      `INSERT INTO reviews_new (review_id, product_id, customer_id, rating, comment)
+  // Copying all data from old table
+  db.prepare(
+    `INSERT INTO reviews_new (review_id, product_id, customer_id, rating, comment)
   SELECT review_id, product_id, customer_id, rating, comment FROM reviews`
-    ).run();
+  ).run();
 
-    // Droping old table and renaming new one to match the old one
-    db.prepare(`DROP TABLE reviews`).run();
-    db.prepare(`ALTER TABLE reviews_new RENAME TO reviews`).run();
-  }
+  // Droping old table and renaming new one to match the old one
+  db.prepare(`DROP TABLE reviews`).run();
+  db.prepare(`ALTER TABLE reviews_new RENAME TO reviews`).run();
+}
 
 function cascadeUpdateProductsCategories() {
   db.prepare(
@@ -66,9 +66,28 @@ function cascadeUpdateProductsCategories() {
 //#endregion
 
 //#region product functions
-function getAllProducts() {
-  const stmt = db.prepare(selectAllProducts);
-  return stmt.all();
+function getAllProducts(minPrice, maxPrice) {
+  let query = selectAllProducts;
+  const queryParams = [];
+  const conditions = [];
+
+  // check if minPrice or maxPrice is provided
+  if (minPrice !== undefined) {
+    conditions.push("products.price >= ?");
+    queryParams.push(minPrice);
+  }
+  if (maxPrice !== undefined) {
+    conditions.push("products.price <= ?");
+    queryParams.push(maxPrice);
+  }
+
+  // if there are any conditions provided add relevant syntax
+  if (conditions.length > 0) {
+    query += " WHERE " + conditions.join(" AND ");
+  }
+
+  const stmt = db.prepare(query);
+  return stmt.all(...queryParams); // ... expands the array into separate parameters
 }
 
 function getProductById(id) {
@@ -132,7 +151,6 @@ function updateProduct(
 }
 
 function deleteProduct(id) {
-  // ska även ta bort alla recensioner, cascade delete?
   const stmt = db.prepare("DELETE FROM products WHERE product_id = ?");
   return stmt.run(id);
 }
