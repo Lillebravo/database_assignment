@@ -18,7 +18,7 @@ const {
   logger,
   validateProductInput,
   validateCustomerInput,
-  notValidNr
+  notValidNr,
 } = require("./middlewares.js");
 //#endregion
 
@@ -48,11 +48,22 @@ app.get("/products", (req, res) => {
     : undefined;
 
   // validation
-  if (minPrice !== undefined && notValidNr(minPrice)) {
-    return res.status(400).json({ error: "min price must be a valid number" });
-  }
-  if (maxPrice !== undefined && notValidNr(maxPrice)) {
-    return res.status(400).json({ error: "max price must be a valid number" });
+  const errors = [];
+  if (minPrice !== undefined || maxPrice !== undefined) { // Only validate if at least one of them are defined
+    if (minPrice !== undefined && notValidNr(minPrice) !== "") {
+      errors.push(`minPrice${notValidNr(minPrice)}`);
+    }
+    if (maxPrice !== undefined && notValidNr(maxPrice) !== "") {
+      errors.push(`maxPrice${notValidNr(maxPrice)}`);
+    }
+    if (minPrice > maxPrice) {
+      errors.push(`maxPrice cannot be lower than minPrice`);
+    }
+
+    // If there are errors, return response
+    if (errors.length > 0) {
+      return res.status(400).json({ errors });
+    }
   }
 
   res.json(getAllProducts(minPrice, maxPrice));

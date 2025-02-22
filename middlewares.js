@@ -46,13 +46,15 @@ const validateProductInput = (req, res, next) => {
   }
 
   // Validate price
-  if (!price || notValidNr(price)) {
-    errors.push("Price has to be higher than 0");
+  if (!price || notValidNr(price, 1) !== "") {
+    const errorMsg = notValidNr(price, 1);
+    errors.push(`Price${errorMsg}`);
   }
 
   // Validate quantity
-  if (stock_quantity === undefined || stock_quantity < 0) {
-    errors.push("Quantity must be higher than 0");
+  if (!stock_quantity || notValidNr(stock_quantity) !== "") {
+    const errorMsg = notValidNr(stock_quantity);
+    errors.push(`Quantity${errorMsg}`);
   }
 
   if (errors.length > 0) {
@@ -96,11 +98,17 @@ const validateCustomerInput = (req, res, next) => {
   next();
 };
 
-function notValidNr(number) {
-  if (isNaN(number) || number < 0) {
-    return true;
+function notValidNr(number, lowestNrAllowed = 0) {
+  // if empty string is returned its a valid nr
+  let errorMsg = "";
+  if (number < lowestNrAllowed) {
+    errorMsg = ` has to be higher than ${lowestNrAllowed - 1}.`;
+    if (number < 0) errorMsg = " has to be a positive number.";
   }
-  return false;
+  if (isNaN(number)) {
+    errorMsg = " is not a valid number.";
+  }
+  return errorMsg;
 }
 
 module.exports = {
