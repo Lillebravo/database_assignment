@@ -4,6 +4,3 @@
 * better-sqlite3
 * express
 * Database file webbutiken.db
-
-## Things to do:
-* Implementera paginering
