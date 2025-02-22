@@ -160,11 +160,11 @@ function deleteProduct(id) {
 function getCustomerById(id) {
   const query = `SELECT 
     customers.customer_id AS Customer_Id, 
-    customers.name AS Name, 
-    customers.email AS Email, 
-    customers.phone AS Phone_Nr, 
-    customers.address AS Address, 
-    customers.password AS Password,
+    customers.name AS name, 
+    customers.email AS email, 
+    customers.phone AS phone, 
+    customers.address AS address, 
+    customers.password AS password,
     JSON_GROUP_ARRAY(JSON_OBJECT('Order_Nr', orders.order_id, 'Order_Date', orders.order_date)) AS Orders
   FROM customers
   LEFT JOIN orders ON orders.customer_id = customers.customer_id

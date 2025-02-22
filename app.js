@@ -118,12 +118,12 @@ app.put(`/products/:id`, validateProductInput, (req, res) => {
     .status(201)
     .json(
       updateProduct(
-        req.params.id,
         manufacturer_id,
         name,
         description,
         price,
-        stock_quantity
+        stock_quantity,
+        req.params.id
       )
     );
 });
