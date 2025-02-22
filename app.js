@@ -28,7 +28,7 @@ const app = express();
 app.listen(8000, () => {
   console.log("Server is running");
 });
-app.use(logger); // all requests user logger middleware function
+app.use(logger); // all requests use logger middleware function
 app.use(express.json());
 
 //#region GET methods
