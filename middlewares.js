@@ -1,5 +1,5 @@
 const logger = (req, res, next) => {
-  // Keep track if we've logged already
+  // Keep track if logged already
   let logged = false;
 
   // Store original send
@@ -19,8 +19,8 @@ const logger = (req, res, next) => {
   };
 
   // Override send method
-  // If `res.send` is called, we override it to log the request before sending a response.
-  // This prevents duplicate responses (one from the original send and one from the overridden send).
+  // If `res.send` is called, override it to log the request before sending a response,
+  // This prevents duplicate responses
   res.send = function (data) {
     logRequest(); // Log the request before sending the response
     return originalSend.apply(res, arguments); // Call the original `send` method with the same arguments
